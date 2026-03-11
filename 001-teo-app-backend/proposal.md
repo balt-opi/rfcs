@@ -18,7 +18,7 @@ As part of the Parking Enforcement Tiger Team, we're piloting a client side appl
 - Edit service request details directly
 - Retrieve and download list of open srs in a given area
 
-In an effort to support these functionalities, this RFC aims to outline a system architecture design supported by Azure functions (serverless compute), the Salesforce API, Azure blob storage, and Dagster to orchestrate a 311 data pipeline. 
+In an effort to support these functionalities, this RFC aims to outline a system design architecture supported through Azure functions (serverless compute), the Salesforce API, Azure blob storage, and Dagster to orchestrate a 311 data pipeline. 
 
 # Proposal
 
@@ -28,6 +28,13 @@ In an effort to support these functionalities, this RFC aims to outline a system
 > pseudocode, etc.
 >
 > Feel free to mention key implementation concerns.
+
+
+## System Design Architecture
+![End to end flow](system-design.png)
+
+
+## Alternatives Considered
 
 
 # Open Questions
