@@ -93,7 +93,7 @@ great practice for joining the opi dev team someday!
 
 Reviewers should focus on resolving open questions, surfacing risks and
 drawbacks, and providing constructive critique of the overall approach. The
-[OPI design principles](DESIGN_PRINCIPLES.md) serve as a guiding hand to
+[OPI design principles](DESING_PRINCIPLES.md) serve as a guiding hand to
 determine the proposal's alignment with the Concourse philosophy.
 
 Reviewers should leave questions and comments on individual lines via PR review
@@ -107,7 +107,7 @@ if you don't have much more to add.
 The review process should lead to consensus from three different perspectives:
 
 * Members of the **OPI** dev team have determined whether the proposal fits with
-  the Concourse design principles and whether the changes sufficiently improve
+  the OPI design principles and whether the changes sufficiently improve
   the product.
 * The **maintainers** have determined whether the proposal is worth
   maintaining, i.e. whether the benefits of the proposal outweigh any technical
