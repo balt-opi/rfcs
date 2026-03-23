@@ -77,7 +77,7 @@ flowchart LR
     C --> D[fct_parking_complaints]
   end
 
-  subgraph dagster[🐙 dagster"]
+subgraph dagster["🐙 dagster"]  
     E[(fct_parking_complaints.parquet)]
   end
 
