@@ -1,40 +1,78 @@
 
 # Summary
-
-This proposal outlines the back end integration to support the client side TEO Parking Enforcement app. This client side app will be used by more than a hundred Parking TEO officers and should support concurrent updates to Salesforce, both updating and closing service requests from input by TEO officers in the field. 
-
+This proposal outlines the back end integration to support the client side TEO Parking Buddy app. This client side app will be used by an estimated one hundred Parking TEO officers and should support concurrent updates to Salesforce. both updating and closing service requests from input by TEO officers in the field and dispatchers. 
 
 # Motivation
-
-> Describe the problem that this change intends to solve. Don't get into how it
-> solves it yet.
->
-> This can be brief, but if there is any additional context or any
-> empathy-building that you'd like to communicate, it can't hurt to include it
-> with plenty of detail and hypothetical examples.
-
 As part of the Parking Enforcement Tiger Team, we're piloting a client side application to help identify open parking enforcement service requests (SRs) displayed through an interactive map. Both traffic enforcement officers (TEOs) and dispatchers alike would be able to interact with the app and do things such as: 
+- See all open and recent parking enforcement service requests.
 - Close a service request with a given reason such as gone at arrival (GOA)
 - Edit service request details directly
-- Retrieve and download list of open srs in a given area
+- Retrieve and download a list of open SRs in a given area (post)
 
-In an effort to support these functionalities, this RFC aims to outline a system design architecture supported through Azure functions (serverless compute), the Salesforce API, Azure blob storage, and Dagster to orchestrate a 311 data pipeline. 
+In an effort to support these functionalities, this RFC outlines a system design architecture that leverages Azure functions (serverless compute), the Salesforce API, Azure blob storage, and Dagster to orchestrate a 311 dbt data pipeline to power the back end requirements of the TEO Parking Buddy application. 
+
+## Front End Application
+- [TEO Parking Buddy](https://github.com/balt-opi/TEOParkingBuddy)
+
+## Why is This Needed? 
+DOT and TEO officers currently use a Salesforce worker app that is supposed to help them both view and close out parking related service requests while they're on the field. Not only does this current solution not work as expected, TEO officers often bypass using the app and instead default to internal workflows (which vary depending on the TEO). This misalignment results in a loss of visibility into certain parts of the service request lifecycle and often time results in duplicate SRs being filed as a direct result. All of these issues stem from the current worker app 
+
+## Solution
 
 # Proposal
-
-> Describe your proposal.
->
-> Things that can help: clearly defining terms, providing example content,
-> pseudocode, etc.
->
-> Feel free to mention key implementation concerns.
-
+This RFC proposes the introduction of a new micro service repository responsible for handling CRUD operations to interact directly with the Salesforce API through the use of serverless Azure functions. 
 
 ## System Design Architecture
 ![End to end flow](system-design.png)
 
+## Data Models
+The production client side app will be pulling from a parquet stored in `dataproudctsdev/311/fct_parking_complaints.parquet`. 
+The data model for this dataset is:
 
-## Alternatives Considered
+```mermaid
+erDiagram
+  SERVICE_REQUESTS {
+    string sr_id PK "REQUIRED"
+    string sr_number "REQUIRED"
+    string sr_type "REQUIRED"
+    timestamp created_at "REQUIRED"
+    string sr_status "REQUIRED"
+    timestamp closed_at "NULLABLE"
+    timestamp updated_at "NULLABLE"
+    string priority "NULLABLE"
+    string assigned_to "NULLABLE"
+    timestamp due_at "NULLABLE"
+    timestamp sf_last_modified_at "NULLABLE"
+    string outcome "NULLABLE"
+    string closing_response "NULLABLE"
+    string method_received "NULLABLE"
+    string source "NULLABLE"
+    string sf_source "NULLABLE"
+    string street_address "NULLABLE"
+    float located_lat "NULLABLE"
+    float located_lng "NULLABLE"
+    float latitude "NULLABLE"
+    float longitude "NULLABLE"
+    string case_details "NULLABLE"
+    string parent_sr_id FK "NULLABLE"
+    string duplicate_sr_id FK "NULLABLE"
+    boolean has_photo "NULLABLE"
+    string details "NULLABLE"
+    string flex_summary "NULLABLE"
+    string location_details "NULLABLE"
+    string description "NULLABLE"
+    boolean is_closed "NULLABLE"
+    string issue "NULLABLE"
+    timestamp overall_closed_at "NULLABLE"
+    timestamp overall_due_at "NULLABLE"
+    float days_old "NULLABLE"
+    string is_timely "NULLABLE"
+    string issue_category "NULLABLE"
+  }
+```
+
+This parquet is overwritten everytime 
+
 
 
 # Open Questions
