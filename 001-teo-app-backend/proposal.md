@@ -13,7 +13,7 @@ As part of the Parking Enforcement Tiger Team, we're piloting a client side appl
 - [TEO Parking Buddy](https://github.com/balt-opi/TEOParkingBuddy)
 
 ## Why is This Needed? 
-DOT and TEO officers currently use a Salesforce worker app that is supposed to help them both view and close out parking related service requests while they're on the field. Not only does this current solution not work as expected, TEO officers often bypass using the app and instead default to internal workflows (which vary depending on the TEO). This misalignment results in a loss of visibility into certain parts of the service request lifecycle and results in duplicate SRs being filed as a direct result. All of these issues stem from the current worker app not meeting the current demand 
+DOT and TEO officers currently use a Salesforce worker app that is supposed to help them both view and close out parking related service requests while they're on the field. Not only does this current solution not work as expected, TEO officers often bypass using the app and instead default to internal workflows (which vary depending on the TEO). This misalignment results in a loss of visibility into certain parts of the service request lifecycle and results in duplicate SRs being filed as a direct result. All of these issues stem from the current worker app not meeting the current demands of TEO officers and is a factor of the ever growing systemic backlog that has built up. 
 
 ## Solution
 In an effort to support these functionalities, this RFC outlines a system that leverages Azure functions (serverless compute), the Salesforce API, Azure blob storage, and Dagster to orchestrate a 311 dbt data pipeline to power the back end requirements of the TEO Parking Buddy application. This RFC proposes the introduction of a new micro service repository responsible for handling CRUD operations to interact directly with the Salesforce API through the use of serverless Azure functions. 
@@ -21,9 +21,35 @@ In an effort to support these functionalities, this RFC outlines a system that l
 ## System Design Architecture
 ![End to end flow](system-design.png)
 
-## Data Models
+## End to End Data Flow
+The end to end process first starts at the source system which is the Salesforce 
 The production client side app will be pulling from a parquet stored in `dataproudctsdev/311/fct_parking_complaints.parquet`. 
 The data model for this dataset is:
+
+
+This parquet will be generated as a downstream asset from the following data pipeline workflow:
+
+```mermaid
+flowchart LR
+  subgraph dagster["dagster"]
+    A([Case]) --> B[sf_service_requests]
+  end
+
+  subgraph dbt["dbt"]
+    B --> C[dim_service_requests]
+    C --> D[fct_parking_complaints]
+  end
+
+  subgraph dagster["dagster"]
+    E[(data product parquet)]
+  end
+
+  D --> E
+```
+
+## Data Models
+
+### fct_parking_complaints
 
 ```mermaid
 erDiagram
@@ -67,29 +93,13 @@ erDiagram
   }
 ```
 
-This parquet will be generated as a downstream asset from the following data pipeline workflow:
-
-```mermaid
-flowchart LR
-  subgraph dbt["dbt"]
-    A([sf_service_requests]) --> B[stg_sf_service_requests]
-    B --> C[dim_service_requests]
-    C --> D[fct_parking_complaints]
-  end
-
-  subgraph dagster["dagster"]
-    E[(fct_parking_complaints.parquet)]
-  end
-
-  D --> E
-```
-
-
 
 
 # Open Questions
 
 > Raise any concerns here for things you aren't sure about yet.
+
+1) Does the creation of necessary cloud resources (Azure functions in both dev and prod subscriptions) need to wait for a Terraform integration to be implemented first? Can we manually create the resources and then import the corresponding configs later down the road?
 
 
 # Answered Questions
@@ -108,3 +118,5 @@ flowchart LR
 
 > What is the impact of this change, outside of the change itself? How might it
 > change peoples' workflows today, good or bad?
+
+This new microservice will need to be both owned and maintained by the OPI engineering team. 
