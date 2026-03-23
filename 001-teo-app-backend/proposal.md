@@ -42,7 +42,7 @@ flowchart LR
   end
 
   subgraph dagster["dagster"]
-    G[(data product parquet)]
+    F[(data product parquet)]
   end
 
   E --> F
