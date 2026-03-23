@@ -36,15 +36,16 @@ flowchart LR
   end
 
   subgraph dbt["dbt"]
-    B --> C[dim_service_requests]
-    C --> D[fct_parking_complaints]
+    B --> C[stg_service_requests]
+    C --> D[dim_service_requests]
+    E --> F[fct_parking_complaints]
   end
 
   subgraph dagster["dagster"]
-    E[(data product parquet)]
+    G[(data product parquet)]
   end
 
-  D --> E
+  F --> G
 ```
 
 ## Data Models
