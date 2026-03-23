@@ -1,33 +1,31 @@
-
 # Summary
-This proposal outlines the back end integration to support the client side TEO Parking Buddy app. This client side app will be used by an estimated one hundred users and should support concurrent write and updates to the Salesforce API triggered by actions from on the field TEO officers and DOT dispatchers. 
+This proposal outlines the backend integration required to support the TEO Parking Buddy client application. The app will serve an estimated one hundred concurrent users, supporting real-time writes and updates to the Salesforce API triggered by actions from TEO officers and DOT dispatchers in the field.
 
 # Motivation
-As part of the Parking Enforcement Tiger Team, we're piloting a client side application to help identify open parking enforcement service requests (SRs) displayed through an interactive map. Both traffic enforcement officers (TEOs) and dispatchers alike would be able to interact with the app and do things such as: 
-- See all open and recent parking enforcement service requests.
-- Close a service request with a given reason such as gone at arrival (GOA)
-- Edit service request details directly
-- Retrieve and download a list of open SRs in a given area (post)
+As part of the Parking Enforcement Tiger Team, we are piloting a client application to help identify open parking enforcement service requests (SRs) via an interactive map. Both traffic enforcement officers (TEOs) and DOT dispatchers would be able to:
 
-## Front End Application
+- View all open and recent parking enforcement service requests
+- Close a service request with a given outcome (e.g., gone on arrival)
+- Edit service request details directly
+- Retrieve and download a list of open SRs within a given area
+
+## Front-End Application
 - [TEO Parking Buddy](https://github.com/balt-opi/TEOParkingBuddy)
 
-## Why is This Needed? 
-DOT and TEO officers currently use a Salesforce worker app that is supposed to help them both view and close out parking related service requests while they're on the field. Not only does this current solution not work as expected, TEO officers often bypass using the app and instead default to internal workflows (which vary depending on the TEO). This misalignment results in a loss of visibility into certain parts of the service request lifecycle and results in duplicate SRs being filed as a direct result. All of these issues stem from the current worker app not meeting the current demands of TEO officers and is a factor of the ever growing systemic backlog that has built up. 
+## Why Is This Needed?
+DOT and TEO officers currently use a Salesforce worker app intended to help them view and close parking-related service requests while in the field. Not only does this solution not work as expected, but TEO officers frequently bypass it in favor of informal, individual workflows. This misalignment reduces visibility into the service request lifecycle and contributes directly to duplicate SRs being filed — both of which are factors in the systemic backlog that has accumulated over time.
 
 ## Solution
-In an effort to support these functionalities, this RFC outlines a system that leverages Azure functions (serverless compute), the Salesforce API, Azure blob storage, and Dagster to orchestrate a 311 dbt data pipeline to power the back end requirements of the TEO Parking Buddy application. This RFC proposes the introduction of a new micro service repository responsible for handling CRUD operations to interact directly with the Salesforce API through the use of serverless Azure functions. 
+To support these requirements, this RFC proposes a system leveraging Azure Functions (serverless compute), the Salesforce API, Azure Blob Storage, and Dagster to orchestrate a 311 dbt data pipeline powering the backend of the TEO Parking Buddy application. This requires introducing a new microservice repository responsible for handling CRUD operations against the Salesforce API via serverless Azure Functions.
 
 ## System Design Architecture
 ![End to end flow](system-design.png)
 
-## End to End Data Flow
-The end to end process first starts at the source system which is the Salesforce 
-The production client side app will be pulling from a parquet stored in `dataproudctsdev/311/fct_parking_complaints.parquet`. 
-The data model for this dataset is:
+## End-to-End Data Flow
 
+The source of truth for city-wide service requests is the operational database table `balt-sql311-prd.baltimore.city.BALT_SALESFORCE.dbo.Case`, owned and maintained by Salesforce and the corresponding 311 BCIT partners. A dbt pipeline transforms this source into a downstream fact table consumed by the TEO Parking Buddy client application.
 
-This parquet will be generated as a downstream asset from the following data pipeline workflow:
+To maximize efficiency, the pipeline leverages Parquet's columnar storage format, delivering file snapshots to an Azure storage container at `dataproudctsdev/311/fct_parking_complaints.parquet`. The pipeline targets near-real-time freshness with updates every 2 minutes.
 
 ```mermaid
 flowchart LR
