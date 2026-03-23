@@ -71,13 +71,13 @@ This parquet will be generated as a downstream asset from the following data pip
 
 ```mermaid
 flowchart LR
-  subgraph dbt["🔧 dbt"]
+  subgraph dbt["dbt"]
     A([sf_service_requests]) --> B[stg_sf_service_requests]
     B --> C[dim_service_requests]
     C --> D[fct_parking_complaints]
   end
 
-subgraph dagster["🐙 dagster"]  
+  subgraph dagster["dagster"]
     E[(fct_parking_complaints.parquet)]
   end
 
