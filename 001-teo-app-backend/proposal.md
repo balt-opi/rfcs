@@ -208,6 +208,9 @@ erDiagram
   }
 ```
 
+## Alternatives Considered
+The most natural alternative to Azure Functions would be a standalone FastAPI service. The two endpoints (PATCH /sr/{sr_id} and POST /sr/{sr_id}/close) map cleanly to FastAPI route definitions and can even be integrated directly within the TEO parking buddy app. This solution however does not scale as well as Azure functions and we would be constrained by the CPU, RAM, and specs of the box or service we end up deploying fast api to. I wanted to build a solution that would handle 100+ users, each making 150 updates daily, feel like a breeze! 
+
 # Open Questions
 
 > Raise any concerns here for things you aren't sure about yet.
