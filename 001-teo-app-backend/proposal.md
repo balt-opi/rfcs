@@ -46,6 +46,23 @@ flowchart LR
   E --> F
 ```
 
+## Azure Function Architecture
+
+## Observability & Monitoring
+
+## Cost Breakdown
+Some quick back of the envelope calculations can help us understand what associated costs we'll incur with the given system design. If we're estimating to have 100 users that each make 150 updates (function invocations) / day on the TEO Parkig Buddy app, our total function invocations per month comes out to:
+```
+100 users × 150 requests/day × 30 days = 450,000 executions/month
+```
+
+Given the [Azure Function Princing Table](https://azure.microsoft.com/en-us/pricing/details/functions/#pricing), if we go with the base consumption plan, we'd get 1 million free executions per month. Given that they payload the function is accepting doesn't have batch aggregate data, we also fall well within the free tier for the 400,000 GB-s usage consumption. 
+
+Here is the pricing table for reference:
+![alt text](image.png)
+
+## Testing 
+
 ## Data Models
 
 ### fct_parking_complaints
