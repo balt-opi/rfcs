@@ -151,6 +151,19 @@ Unit tests should cover request validation and the Salesforce payload constructi
 
 ## Data Models
 
+### client payload
+```mermaid
+erDiagram
+  client_payload{
+    string sr_number "REQUIRED"
+    string outcome "REQUIRED"
+    string response "REQUIRED"
+    string notes "NULLABLE"
+    datetime closing_time "REQUIRED"
+    string closed_by "REQUIED"
+  }
+```
+
 ### fct_parking_complaints
 
 ```mermaid
@@ -194,21 +207,6 @@ erDiagram
     string issue_category "NULLABLE"
   }
 ```
-
-### client payload
-```mermaid
-erDiagram
-  client_payload{
-    string sr_number "REQUIRED"
-    string outcome "REQUIRED"
-    string response "REQUIRED"
-    string notes "NULLABLE"
-    datetime closing_time "REQUIRED"
-    string closed_by "REQUIED"
-  }
-```
-
-
 
 # Open Questions
 
