@@ -195,6 +195,19 @@ erDiagram
   }
 ```
 
+### client payload
+```mermaid
+erDiagram
+  client_payload{
+    string sr_number "REQUIRED"
+    string outcome "REQUIRED"
+    string response "REQUIRED"
+    string notes "NULLABLE"
+    datetime closing_time "REQUIRED"
+    string closed_by "REQUIED"
+  }
+```
+
 
 
 # Open Questions
