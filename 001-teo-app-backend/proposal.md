@@ -215,7 +215,9 @@ The most natural alternative to Azure Functions would be a standalone FastAPI se
 
 > Raise any concerns here for things you aren't sure about yet.
 
-1) Does the creation of necessary cloud resources (Azure functions in both dev and prod subscriptions) need to wait for a Terraform integration to be implemented first? Can we manually create the resources and then import the corresponding configs later down the road?
+1) TBD
+2) TBD
+3) TBD
 
 
 # Answered Questions
