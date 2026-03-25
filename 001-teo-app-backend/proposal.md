@@ -59,7 +59,8 @@ Some quick back of the envelope calculations can help us understand what associa
 Given the [Azure Function Princing Table](https://azure.microsoft.com/en-us/pricing/details/functions/#pricing), if we go with the base consumption plan, we'd get 1 million free executions per month. Given that they payload the function is accepting doesn't have batch aggregate data, we also fall well within the free tier for the 400,000 GB-s usage consumption. 
 
 Here is the pricing table for reference:
-![alt text](image.png)
+![Pricing Table](pricing-tage.png)
+
 
 ## Testing 
 
