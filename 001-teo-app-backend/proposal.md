@@ -215,7 +215,7 @@ The most natural alternative to Azure Functions would be a standalone FastAPI se
 
 > Raise any concerns here for things you aren't sure about yet.
 
-1) TBD
+1) Identify TEO business needs first. Garner business requirements. 
 2) TBD
 3) TBD
 
