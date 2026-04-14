@@ -182,9 +182,6 @@ erDiagram
     timestamp sf_last_modified_at "NULLABLE"
     string outcome "NULLABLE"
     string closing_response "NULLABLE"
-    string method_received "NULLABLE"
-    string source "NULLABLE"
-    string sf_source "NULLABLE"
     string street_address "NULLABLE"
     float located_lat "NULLABLE"
     float located_lng "NULLABLE"
@@ -200,11 +197,8 @@ erDiagram
     string description "NULLABLE"
     boolean is_closed "NULLABLE"
     string issue "NULLABLE"
-    timestamp overall_closed_at "NULLABLE"
-    timestamp overall_due_at "NULLABLE"
     float days_old "NULLABLE"
     string is_timely "NULLABLE"
-    string issue_category "NULLABLE"
   }
 ```
 
