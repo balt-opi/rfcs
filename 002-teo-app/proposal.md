@@ -13,17 +13,16 @@ triggered by field actions.
 
 The proposed client is a containerized Next.js/FastAPI application
 deployed behind an Nginx reverse proxy. It will read a curated parking
-complaint dataset snapshot stored and refreshed in Azure Blob Storage
-parquet. 311 parking complaint data in salesforce will be updated from
-the app via the open311 api connected to salesforce.
+complaint dataset snapshot logged and refreshed in Parquet files that are stored in Azure Blob Storage.
+311 parking complaint data in Salesforce will be updated from
+the app via the Open311 API connected to Salesforce.
 
 # Motivation
 
-Traffic enforcement officers currently rely on a combination of radio
-dispatch, paper logs, and disconnected legacy tools to receive
-assignments and track their work. This creates visibility gaps for
-supervisors, delays in officer response, and inconsistent documentation
-of enforcement activity.
+TEOs currently rely on a combination of radio dispatch, paper logs,
+and disconnected legacy tools to receive assignments and track their work.
+This creates visibility gaps for supervisors, delays in officer response,
+and inconsistent documentation of enforcement activity.
 
 The TEO Parking Buddy app centralizes assignment management, real-time
 SR visibility, and enforcement documentation into a single platform. The
@@ -38,11 +37,11 @@ The app serves four distinct user types. The TEO is the primary user;
 all features must be designed to support them first.
 
 | Persona | Context | Primary Needs |
-|--------------------|--------------------|--------------------------------|
-| **TEO (Traffic Enforcement Officer)** | Mobile, in the field | Fast access to SRs in their post and queue; nearby open SRs; simple SR closure with outcome and notes |
-| **Dispatcher** | Desktop, central office | Live map of all open SRs; assignment status; geographic distribution of requests |
-| **Manager** | Desktop | TEO bandwidth visibility; ability to plan and make bulk assignments |
-| **Admin Staff** | Desktop, support role | Data entry and corrections to maximize TEO efficiency |
+|---------------------------------------|-------------------------|--------------------------------|
+| **TEO (Traffic Enforcement Officer)** | Mobile, in the field    | Fast access to SRs in their post and queue; nearby open SRs; simple SR closure with outcome and notes |
+| **Dispatcher**                        | Desktop, central office | Live map of all open SRs; assignment status; geographic distribution of requests |
+| **Manager**                           | Desktop                 | TEO bandwidth visibility; ability to plan and make bulk assignments |
+| **Admin Staff**                       | Desktop, support role   | Data entry and corrections to maximize TEO efficiency |
 
 ## Front-End Application
 
@@ -70,15 +69,18 @@ Salesforce.
 
 ## Version 1.0 Scope
 
-**In scope:** - Mobile-friendly webapp for TEOs in the field - Desktop
-view for dispatchers and managers - GPS and mapping features for both
-field and dispatch/manager views - Near real-time sync with 311 /
-Salesforce data - Outcome, response, and notes captured in 311 via the
-app - Bulk assignment and unassignment of SRs
+**In scope:**
+- Mobile-friendly webapp for TEOs in the field
+- Desktop view for dispatchers and managers
+- GPS and mapping features for both field and dispatch/manager views
+- Near real-time sync with 311 / Salesforce data
+- Outcome, response, and notes captured in 311 via the app
+- Bulk assignment and unassignment of SRs
 
-**Explicitly out of scope for v1.0:** - Overtime metrics and KPI
-dashboarding - Closing or editing SRs on behalf of other users -
-Close-transfer options beyond the existing resolution options
+**Explicitly out of scope for v1.0:** 
+- Overtime metrics and KPI dashboarding
+- Closing or editing SRs on behalf of other users
+- Close-transfer options beyond the existing resolution options
 
 ## Solution
 
@@ -92,29 +94,30 @@ SharePoint intermediary write path.
 
 ## System Design Architecture
 
-![End to end flow](overview_diagram.png)
+![End-to-end flow](overview_diagram_1.svg)
 
-### Web Server and Auth— Nginx
+### Webserver — Nginx
 
-Nginx serves as the entry point for all incoming traffic, acting as a
+Nginx serves as the entrypoint for all incoming traffic, acting as a
 high-performance reverse proxy that routes requests to the appropriate
-service. Its lightweight and the standard for handling high concurrency
-traffic. Routing rules separate frontend and API traffic: requests
-to `/api/*` are proxied to the FastAPI backend, and all other requests
-are forwarded to the Next.js server. Authentication requests are routed
-to Microsoft Entra ID, delegating the full OAuth 2.0 flow — including
-token issuance and refresh — to Entra's identity platform. This keeps
-authentication logic out of the application layer entirely, with Nginx
-enforcing redirect rules to Entra for any unauthenticated request before
-it reaches either service. Nginx will pass user information as well as
-path to Next.js to adjust UI and identify user.
+service. As a webserver, it is lightweight and the standard for handling
+high concurrency traffic. Routing rules separate frontend and API traffic:
+requests to `/api/*` are proxied to the FastAPI backend, and all other requests
+are forwarded to the Next.js server.
 
-### Frontend — Next.js
+### Frontend/Authentication — Next.js
 
 Next.js is a production-grade framework trusted at scale by some of the
 largest applications on the web, making it a strong foundation for a
 system. React frameworks, especially this one, are common thus can be
-easily interpreted and edited by engineers and AI agents.
+easily interpreted and edited by engineers and AI agents. Authentication requests
+are handled by the frontend client and routed to Microsoft Entra ID, delegating
+the full OAuth 2.0 flow — including token issuance and refresh — to Entra's
+identity platform. This process does not leave the user's browser, ensuring security by
+not having user cached credentials/secrets stored anywhere but as cookies.
+
+Packages used in the frontend/Next.js portion of the app are checked for vulnerabilities and
+updates in Snyk and Dependabot, so changes to the package infrastructure are handled with speed.
 
 ### Read Backend — FastAPI
 
@@ -122,14 +125,16 @@ The backend for serving data is powered by FastAPI, a modern Python
 framework. FastAPI's async features allow it to handle many concurrent
 requests efficiently, and its automatic OpenAPI documentation makes the
 API immediately explorable and easy to validate during development. This
-backend will read the blob-stored parquet file with parking complaint SR
+backend will read the blob-stored Parquet file with parking complaint SR
 data, refreshing regularly and storing in memory for serving the client.
+
+Similarly to Next.js, package versions are audited and updated through Snyk.
 
 ### Write Backend — Azure Functions
 
-The application will also update service request records in salesforce
-via the Open311 api. This functionality will utilize Azure Functions and
-is discussed in a separate rfc.
+The application will also update SR records in Salesforce
+via the Open311 API. This functionality will utilize Azure Functions and
+is discussed in a separate RFC.
 
 ## Data Flow Overview
 
@@ -137,8 +142,8 @@ text goes here
 
 ## User considerations that influence architecture
 
-The existing FastAPI backend reads this parquet file on a 2-minute
-APScheduler interval, transforms it into GeoJSON keyed by user role, and
+The existing FastAPI backend reads the Parquet file on a 2-minute
+interval using Python package APScheduler, transforms it into GeoJSON keyed by user role, and
 caches the result in memory. Two role-differentiated endpoints are
 served from this cache:
 
@@ -156,21 +161,21 @@ Function, which mutates the `Case` record in Salesforce directly.
 ## Observability & Monitoring
 
 Azure Functions on the Consumption plan integrate natively with
-Application Insights, which should be enabled on both the dev and prod
-function apps. This gives us out-of-the-box coverage for logs,
+Application Insights, which should be enabled in both the development and
+production environment applications. This gives us out-of-the-box coverage for logs,
 invocation counts, failure rates, cold-start latency, and end-to-end
 request duration without any additional instrumentation.
 
-Alerts should be configured for two scenarios: a sustained spike in 5xx
-responses (indicating a Salesforce API or auth issue) and invocation
+Alerts should be configured for two scenarios: a sustained spike in 5xx/server error
+responses (indicating a Salesforce API or authentication issue) and invocation
 latency exceeding a reasonable threshold (e.g., p95 \> 3s), which would
 signal cold-start problems or Salesforce throttling. Both can be set up
 as Azure Monitor alert rules tied to the Application Insights resource.
 
-The existing FastAPI backend already surfaces a `/api/docs` Swagger UI
-and `/api/openapi.json`. Application Insights traces from the Azure
-Functions should be correlated with backend logs using a shared
-`x-request-id` header to make end-to-end debugging tractable.
+The existing FastAPI backend already surfaces `/api/docs`
+and `/api/openapi.json` SwaggerUI documentation endpoints.
+Application Insights traces from the Azure Functions should be correlated with
+backend logs using a shared `x-request-id` header to make end-to-end debugging tractable.
 
 Successful closure attribution is directly tied to the 90% TEO
 attribution success metric. It is worth adding a lightweight Application
@@ -180,18 +185,23 @@ independently of the full Salesforce reporting pipeline.
 
 ## Cost Breakdown
 
-While v1 will use a azure vm, future iterations will consider azure container services or azure kubernetes. For the initial release, a single D4s v5 instance (4 vCPUs, 16 GB RAM) provides enough to meet the upper end of expected concurrent users while hosting all three application containers on a shared host. This will cost about $140-170 per month. This does not include data storage costs of data (negligible) or the azure function use (free at our expected useage).
+While v1 will use an Azure virtual machine (VM), future iterations will consider Azure Container Apps or Azure Kubernetes. For the initial release, a single D4s v5 instance (4 vCPUs, 16 GB RAM) provides enough to meet the upper end of expected concurrent users while hosting all three application containers on a shared host. This will cost about $140-170 per month. This does not include data storage costs of data (negligible) or the Azure Function app use (free at our expected usage). These costs would be shouldered by OPI as part of our cost-sharing arrangement in each of our BCIT-provisioned Azure environments.
 
 ## Testing & Deployment
 
 ### Environments
 
-blah blah
-
+The v0 environment for TEOTools is a BCIT-managed local VM hosted in their Azure VMWare solution. For **v1.0**, the following Azure subscriptions will be utilized for deployment:
+1. BMORELAB tenant
+   - COB-OPI-DEV
+   - COB-OPI-TEST
+2. BMORE tenant
+   - COB-OPI-STAGE
+   - COB-OPI-PROD (_or_ appropriate BCIT production subscription, pending resolution)
 
 ### Device & Platform Assumptions
 
-blah blah
+It is assumed that the base platform for the Azure services will be *Linux*-backed, whether as the VM's operating system or the underlying base image operating system of the app in either Azure VM or Azure Container App form.
 
 ### Testing Strategy
 
